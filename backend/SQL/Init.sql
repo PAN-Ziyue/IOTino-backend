@@ -1,0 +1,11 @@
+DROP SCHEMA IF EXISTS IOTino;
+CREATE SCHEMA IOTino;
+USE IOTino;
+
+CREATE TABLE User
+(
+    Username TEXT NOT NULL UNIQUE,
+    Password TEXT NOT NULL,
+    Phone    TEXT NOT NULL UNIQUE
+);
+

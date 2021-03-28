@@ -4,8 +4,7 @@ USE IOTino;
 
 CREATE TABLE User
 (
-    Username TEXT NOT NULL UNIQUE,
-    Password TEXT NOT NULL,
-    Phone    TEXT NOT NULL UNIQUE
+    username TEXT NOT NULL UNIQUE,
+    email    TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL
 );
-

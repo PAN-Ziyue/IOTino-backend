@@ -5,7 +5,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-var database *gorm.DB
+var DB *gorm.DB
 
 type DBConfig struct {
 	host     string
@@ -15,18 +15,18 @@ type DBConfig struct {
 	password string
 }
 
-func build_config() *DBConfig {
-	Config := DBConfig{
+func BuildConfig() *DBConfig {
+	config := DBConfig{
 		host:     "localhost",
-		port:     27017,
-		db_name:  "first_go",
-		user:     "admin",
-		password: "1234",
+		port:     3306,
+		db_name:  "IOTino",
+		user:     "root",
+		password: "600019",
 	}
-	return &Config
+	return &config
 }
 
-func database_url(db_config *DBConfig) string {
+func DataBaseURL(db_config *DBConfig) string {
 	return fmt.Sprintf(
 		"%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local",
 		db_config.user,

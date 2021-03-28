@@ -4,10 +4,12 @@ package Controllers
 import (
 	"IOTino/Models"
 	"fmt"
-	"net/http"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
-//GetUsers ... Get all users
+
+
+
 func GetUsers(c *gin.Context) {
 	var user []Models.User
 	err := Models.GetAllUsers(&user)

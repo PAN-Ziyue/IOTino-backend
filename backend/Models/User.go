@@ -8,7 +8,7 @@ import (
 
 type User struct {
 	Username string `json:"username"`
-	Phone    string `json:"phone"`
+	Email    string `json:"email"`
 }
 
 func (b *User) TableName() string {

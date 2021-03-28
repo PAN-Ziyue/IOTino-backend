@@ -3,7 +3,6 @@ package main
 import (
 	"IOTino/Config"
 	"IOTino/Models"
-	"IOTino/Models"
 	"IOTino/Routes"
 	"fmt"
 	"github.com/jinzhu/gorm"
@@ -12,7 +11,7 @@ import (
 var err error
 
 func main() {
-	Config.DB, err = gorm.Open("mysql", Config.DbURL(Config.BuildDBConfig()))
+	Config.DB, err = gorm.Open("mysql", Config.DataBaseURL(Config.BuildConfig()))
 	if err != nil {
 		fmt.Println("Status:", err)
 	}

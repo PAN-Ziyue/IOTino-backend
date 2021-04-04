@@ -12,6 +12,12 @@ export default [
             component: './user/Login',
           },
           {
+            name: '注册结果页',
+            icon: 'smile',
+            path: '/user/register-result',
+            component: './user/RegisterResult',
+          },
+          {
             name: 'register',
             icon: 'smile',
             path: '/user/register',

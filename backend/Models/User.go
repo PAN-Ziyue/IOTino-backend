@@ -2,14 +2,26 @@ package Models
 
 import (
 	"IOTino/Config"
+	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
+	_ "gorm.io/driver/mysql"
 )
 
 type User struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
+	ID       uint   `gorm:"primaryKey"`
+	Email    string `json:"email" gorm:"unique"`
+	Password string `json:"password"`
+	Verified sql.NullBool   `gorm:"default:false"`
 }
+
+//CreateUser ... Insert New data
+func CreateUser(user *User) (err error) {
+	if err = Config.DB.Create(user).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 
 func (b *User) TableName() string {
 	return "user"
@@ -23,13 +35,7 @@ func GetAllUsers(user *[]User) (err error) {
 	return nil
 }
 
-//CreateUser ... Insert New data
-func CreateUser(user *User) (err error) {
-	if err = Config.DB.Create(user).Error; err != nil {
-		return err
-	}
-	return nil
-}
+
 
 //GetUserByID ... Fetch only one user by Id
 func GetUserByID(user *User, id string) (err error) {

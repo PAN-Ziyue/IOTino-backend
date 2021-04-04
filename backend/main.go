@@ -5,19 +5,21 @@ import (
 	"IOTino/Models"
 	"IOTino/Routes"
 	"fmt"
-	"github.com/jinzhu/gorm"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 var err error
 
 func main() {
-	Config.DB, err = gorm.Open("mysql", Config.DataBaseURL(Config.BuildConfig()))
+	Config.DB, err = gorm.Open(mysql.Open(Config.DSN), &gorm.Config{})
+
 	if err != nil {
 		fmt.Println("Status:", err)
 	}
-	defer Config.DB.Close()
+
 	Config.DB.AutoMigrate(&Models.User{})
 	r := Routes.SetupRouter()
-	//running
+
 	r.Run()
 }

@@ -6,7 +6,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:8000/"
+      "url": "http://localhost:8080/"
     },
     {
       "url": "https://localhost:8000/"
@@ -42,35 +42,6 @@
         }
       },
       "x-swagger-router-controller": "api"
-    },
-    "/api/login/captcha": {
-      "post": {
-        "description": "发送验证码",
-        "operationId": "getFakeCaptcha",
-        "tags": ["login"],
-        "parameters": [
-          {
-            "name": "phone",
-            "in": "query",
-            "description": "手机号",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FakeCaptcha"
-                }
-              }
-            }
-          }
-        }
-      }
     },
     "/api/login/outLogin": {
       "post": {

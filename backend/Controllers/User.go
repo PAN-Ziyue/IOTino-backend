@@ -8,8 +8,6 @@ import (
 	"net/http"
 )
 
-
-
 func GetUsers(c *gin.Context) {
 	var user []Models.User
 	err := Models.GetAllUsers(&user)
@@ -22,7 +20,7 @@ func GetUsers(c *gin.Context) {
 //CreateUser ... Create User
 func CreateUser(c *gin.Context) {
 	var user Models.User
-	c.BindJSON(&user)
+	_ = c.BindJSON(&user)
 	err := Models.CreateUser(&user)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -31,6 +29,7 @@ func CreateUser(c *gin.Context) {
 		c.JSON(http.StatusOK, user)
 	}
 }
+
 //GetUserByID ... Get the user by id
 func GetUserByID(c *gin.Context) {
 	id := c.Params.ByName("id")

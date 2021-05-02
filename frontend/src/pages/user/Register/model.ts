@@ -1,5 +1,6 @@
 import type { Effect, Reducer } from 'umi';
-
+import { history } from 'umi';
+import { message } from 'antd';
 import { Register } from './service';
 
 export type StateType = {
@@ -32,6 +33,18 @@ const Model: ModelType = {
         type: 'registerHandle',
         payload: response,
       });
+
+      if (response === 'ok') {
+        message.success('注册成功！');
+        history.push({
+          pathname: '/user/register-result',
+          state: {
+            // account
+          },
+        });
+      } else {
+        console.log('fuck')
+      }
     },
   },
 

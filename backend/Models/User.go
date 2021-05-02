@@ -8,10 +8,11 @@ import (
 )
 
 type User struct {
-	ID       uint   `gorm:"primaryKey"`
-	Email    string `json:"email" gorm:"unique"`
-	Password string `json:"password"`
-	Verified sql.NullBool   `gorm:"default:false"`
+	ID       uint         `gorm:"primaryKey"`
+	Account  string       `json:"account" gorm:"unique"`
+	Email    string       `json:"email" gorm:"unique"`
+	Password string       `json:"password"`
+	Verified sql.NullBool `gorm:"default:false"`
 }
 
 //CreateUser ... Insert New data
@@ -21,7 +22,6 @@ func CreateUser(user *User) (err error) {
 	}
 	return nil
 }
-
 
 func (b *User) TableName() string {
 	return "user"
@@ -34,8 +34,6 @@ func GetAllUsers(user *[]User) (err error) {
 	}
 	return nil
 }
-
-
 
 //GetUserByID ... Fetch only one user by Id
 func GetUserByID(user *User, id string) (err error) {

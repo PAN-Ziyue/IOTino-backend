@@ -2,10 +2,11 @@ import { Form, Button, Input, Popover, Progress, message } from 'antd';
 import type { FC } from 'react';
 import { useState, useEffect } from 'react';
 import type { Dispatch } from 'umi';
-import { Link, connect, history, FormattedMessage, formatMessage, SelectLang } from 'umi';
+import { useIntl, Link, connect, history, FormattedMessage , SelectLang } from 'umi';
 import Footer from '@/components/Footer';
 import type { StateType } from './model';
 import styles from './style.less';
+import { CalculatorOutlined } from '@ant-design/icons';
 
 const FormItem = Form.Item;
 
@@ -58,21 +59,26 @@ export const Register: FC<RegisterProps> = ({
   const [popover, setpopover]: [boolean, any] = useState(false);
   const confirmDirty = false;
   let interval: number | undefined;
+
+  const intl = useIntl();
+
   const [form] = Form.useForm();
   useEffect(() => {
     if (!userAndRegister) {
       return;
     }
-    const account = form.getFieldValue('email');
-    if (userAndRegister.status === 'ok') {
-      message.success('注册成功！');
-      history.push({
-        pathname: '/user/register-result',
-        state: {
-          account,
-        },
-      });
-    }
+    const account = form.getFieldValue('account');
+    const email = form.getFieldValue('email')
+
+    // if (userAndRegister.status === 'ok') {
+    //   message.success('注册成功！');
+    //   history.push({
+    //     pathname: '/user/register-result',
+    //     state: {
+    //       email,
+    //     },
+    //   });
+    // }
   }, [userAndRegister]);
   useEffect(
     () => () => {
@@ -90,6 +96,7 @@ export const Register: FC<RegisterProps> = ({
     }
     return 'poor';
   };
+
   const onFinish = (values: Record<string, any>) => {
     dispatch({
       type: 'userAndRegister/submit',
@@ -101,16 +108,26 @@ export const Register: FC<RegisterProps> = ({
   const checkConfirm = (_: any, value: string) => {
     const promise = Promise;
     if (value && value !== form.getFieldValue('password')) {
-      return promise.reject(formatMessage({ id: 'userandregister.password.twice' }));
+      return promise.reject(intl.formatMessage({ id: 'userandregister.password.twice' }));
     }
     return promise.resolve();
   };
+
+  const checkAccount = (_: any, value: string) => {
+    const promise = Promise;
+    if (value && value.length < 6) {
+      return promise.reject(intl.formatMessage({ id: 'userandregister.account.length' }));
+    }
+
+    return promise.resolve();
+  };
+
   const checkPassword = (_: any, value: string) => {
     const promise = Promise;
     // 没有值的情况
     if (!value) {
       setvisible(!!value);
-      return promise.reject(formatMessage({ id: 'userandregister.password.required' }));
+      return promise.reject(intl.formatMessage({ id: 'userandregister.password.required' }));
     }
     // 有值的情况
     if (!visible) {
@@ -162,16 +179,17 @@ export const Register: FC<RegisterProps> = ({
               rules={[
                 {
                   required: true,
-                  message: formatMessage({ id: 'userandregister.email.required' }),
+                  message: intl.formatMessage({ id: 'userandregister.email.required' }),
                 },
                 {
                   type: 'email',
-                  message: formatMessage({ id: 'userandregister.email.wrong-format' }),
+                  message: intl.formatMessage({ id: 'userandregister.email.wrong-format' }),
                 },
               ]}
             >
-              <Input size="large" placeholder={formatMessage({ id: 'userandregister.email.placeholder' })} />
+              <Input size="large" placeholder={intl.formatMessage({ id: 'userandregister.email.placeholder' })} />
             </FormItem>
+
             <Popover
               getPopupContainer={(node) => {
                 if (node && node.parentNode) {
@@ -195,6 +213,20 @@ export const Register: FC<RegisterProps> = ({
               visible={visible}
             >
               <FormItem
+                name="account"
+                rules={[
+                  {
+                    required: true,
+                    message: intl.formatMessage({ id: 'userandregister.account.required' }),
+                  },
+                  {
+                    validator: checkAccount,
+                  },
+                ]}
+              >
+                <Input size="large" placeholder={intl.formatMessage({ id: 'userandregister.account.placeholder' })} />
+              </FormItem>
+              <FormItem
                 name="password"
                 className={
                   form.getFieldValue('password') &&
@@ -210,7 +242,7 @@ export const Register: FC<RegisterProps> = ({
                 <Input
                   size="large"
                   type="password"
-                  placeholder={formatMessage({ id: 'userandregister.password.placeholder' })}
+                  placeholder={intl.formatMessage({ id: 'userandregister.password.placeholder' })}
                 />
               </FormItem>
             </Popover>
@@ -219,7 +251,7 @@ export const Register: FC<RegisterProps> = ({
               rules={[
                 {
                   required: true,
-                  message: formatMessage({ id: 'userandregister.confirm-password.required' }),
+                  message: intl.formatMessage({ id: 'userandregister.confirm-password.required' }),
                 },
                 {
                   validator: checkConfirm,
@@ -229,7 +261,7 @@ export const Register: FC<RegisterProps> = ({
               <Input
                 size="large"
                 type="password"
-                placeholder={formatMessage({ id: 'userandregister.confirm-password.placeholder' })}
+                placeholder={intl.formatMessage({ id: 'userandregister.confirm-password.placeholder' })}
               />
             </FormItem>
             <FormItem>

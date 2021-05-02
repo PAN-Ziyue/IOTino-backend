@@ -1,9 +1,7 @@
 package Controllers
 
-
 import (
 	"IOTino/Models"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -17,18 +15,7 @@ func GetUsers(c *gin.Context) {
 		c.JSON(http.StatusOK, user)
 	}
 }
-//CreateUser ... Create User
-func CreateUser(c *gin.Context) {
-	var user Models.User
-	_ = c.BindJSON(&user)
-	err := Models.CreateUser(&user)
-	if err != nil {
-		fmt.Println(err.Error())
-		c.AbortWithStatus(http.StatusNotFound)
-	} else {
-		c.JSON(http.StatusOK, user)
-	}
-}
+
 
 //GetUserByID ... Get the user by id
 func GetUserByID(c *gin.Context) {

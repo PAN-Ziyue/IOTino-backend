@@ -14,7 +14,7 @@ export default {
   'userandregisterresult.register.register': 'Register',
   'userandregisterresult.register.get-verification-code': 'Get code',
   'userandregisterresult.register.sign-in': 'Already have an account?',
-  'userandregisterresult.register-result.msg': 'Account：registered at {email}',
+  'userandregisterresult.register-result.msg': 'Account registered',
   'userandregisterresult.register-result.activation-email':
     'The activation email has been sent to your email address and is valid for 24 hours. Please log in to the email in time and click on the link in the email to activate the account.',
   'userandregisterresult.register-result.back-home': 'Back to home',

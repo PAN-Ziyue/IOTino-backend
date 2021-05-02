@@ -15,7 +15,7 @@ export default {
   'userandregister.register.register': 'Register',
   'userandregister.register.get-verification-code': 'Get code',
   'userandregister.register.sign-in': 'Already have an account?',
-  'userandregister.register-result.msg': 'Account：registered at {email}',
+  'userandregister.register-result.msg': 'Account registered',
   'userandregister.register-result.activation-email':
     'The activation email has been sent to your email address and is valid for 24 hours. Please log in to the email in time and click on the link in the email to activate the account.',
   'userandregister.register-result.back-home': 'Back to home',
@@ -25,6 +25,9 @@ export default {
   'userandregister.userName.required': 'Please enter your userName!',
   'userandregister.password.required': 'Please enter your password!',
   'userandregister.password.twice': 'The passwords entered twice do not match!',
+  'userandregister.account.length': 'Please enter at least 6 charcters!',
+  'userandregister.account.required': 'Please enter your account!',
+  'userandregister.account.placeholder': 'Account',
   'userandregister.strength.msg':
     "Please enter at least 6 characters and don't use passwords that are easy to guess.",
   'userandregister.strength.strong': 'Strength: strong',

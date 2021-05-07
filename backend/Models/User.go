@@ -2,35 +2,78 @@ package Models
 
 import (
 	"IOTino/Config"
-	"database/sql"
-	"github.com/labstack/echo/v4"
+	"github.com/gin-gonic/gin"
 	_ "gorm.io/driver/mysql"
 	"net/http"
 )
 
 type User struct {
-	ID       uint         `gorm:"primaryKey"`
-	Account  string       `json:"account" gorm:"unique"`
-	Email    string       `json:"email" gorm:"unique"`
-	Password string       `json:"password"`
-	Verified sql.NullBool `gorm:"default:false"`
+	ID       uint   `gorm:"primaryKey" swaggerignore:"true"`
+	Account  string `json:"account" gorm:"unique;size:255"`
+	Email    string `json:"email" gorm:"unique;size:255"`
+	Password string `json:"password" gorm:"size:255" swaggerignore:"true"`
+	Verified bool   `gorm:"default:false"`
 }
 
 // TODO add error handling
-func CreateUser(c echo.Context) error {
+
+// CreateUser godoc
+// @Summary create a user
+// @Tags User
+// @Accept  json
+// @Param account query string true "account"
+// @Param email query string true "email"
+// @Param password query string true "password"
+// @Success 200 {string} string "ok"
+// @Failure 400 {string} string "error"
+// @Router /api/user [POST]
+func CreateUser(c *gin.Context) {
 	var user User
-	_ = c.Bind(&user)
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	if err := Config.DB.Create(&user).Error; err != nil {
-		print("error found")
-		return c.String(http.StatusUnauthorized, "error")
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	print("ok")
-	return c.String(http.StatusOK, "ok")
+	c.String(http.StatusOK, "ok")
 }
 
 
-func ValidateUser(c echo.Context) error {
-	// TODO
+// UpdatePassword godoc
+// @Summary update a user's password
+// @Tags User
+// @Accept  json
+// @Param password query string true "password"
+// @Success 200 {string} string "ok"
+// @Failure 400 {string} string "error"
+// @Router /api/user [PUT]
+func UpdatePassword(c *gin.Context) {
+
+}
+
+// DeleteUser godoc
+// @Summary delete a user
+// @Tags User
+// @Accept  json
+// @Success 200 {string} string "ok"
+// @Failure 400 {string} string "error"
+// @Router /api/user [DELETE]
+func DeleteUser(c *gin.Context) {
+
+}
+
+// GetUser godoc
+// @Summary get a user's specification
+// @Tags User
+// @Accept  json
+// @Success 200 {object} User
+// @Failure 400 {string} string "error"
+// @Router /api/user [GET]
+func GetUser(c *gin.Context) {
+
 }

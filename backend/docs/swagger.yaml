@@ -1,0 +1,283 @@
+definitions:
+  Models.Device:
+    properties:
+      alert:
+        type: boolean
+      count:
+        type: integer
+      currentLatitude:
+        type: number
+      currentLongitude:
+        type: number
+      device:
+        type: string
+      name:
+        type: string
+      online:
+        type: boolean
+    type: object
+  Models.Location:
+    properties:
+      latitude:
+        type: number
+      longitude:
+        type: number
+      time:
+        type: string
+    type: object
+  Models.User:
+    properties:
+      account:
+        type: string
+      email:
+        type: string
+      verified:
+        type: boolean
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: The worst IOT website in Laohe Mountain Institute of Technology
+  title: IOTino
+  version: 0.0.1
+paths:
+  /api/device:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: device id
+        in: query
+        name: device
+        required: true
+        type: string
+      - description: device name
+        in: query
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            type: string
+      summary: create a device
+      tags:
+      - Device
+  /api/device/{device}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: device id
+        in: path
+        name: device
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            type: string
+      summary: delete a device
+      tags:
+      - Device
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: device id
+        in: path
+        name: device
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Models.Device'
+        "400":
+          description: error
+          schema:
+            type: string
+      summary: get a device by ID
+      tags:
+      - Device
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: device id
+        in: path
+        name: device
+        required: true
+        type: string
+      - description: device name
+        in: query
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            type: string
+      summary: update a device
+      tags:
+      - Device
+  /api/devices:
+    get:
+      consumes:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Models.Device'
+            type: array
+        "400":
+          description: error
+          schema:
+            type: string
+      summary: get all devices
+      tags:
+      - Device
+  /api/location/{device}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: device id
+        in: path
+        name: device
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Models.Location'
+            type: array
+        "400":
+          description: error
+          schema:
+            type: string
+      summary: get certain device's history location sequence
+      tags:
+      - Location
+  /api/locations:
+    get:
+      consumes:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Models.Location'
+            type: array
+        "400":
+          description: error
+          schema:
+            type: string
+      summary: get all device's history location sequence
+      tags:
+      - Location
+  /api/user:
+    delete:
+      consumes:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            type: string
+      summary: delete a user
+      tags:
+      - User
+    get:
+      consumes:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Models.User'
+        "400":
+          description: error
+          schema:
+            type: string
+      summary: get a user's specification
+      tags:
+      - User
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: account
+        in: query
+        name: account
+        required: true
+        type: string
+      - description: email
+        in: query
+        name: email
+        required: true
+        type: string
+      - description: password
+        in: query
+        name: password
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            type: string
+      summary: create a user
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: password
+        in: query
+        name: password
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            type: string
+      summary: update a user's password
+      tags:
+      - User
+swagger: "2.0"

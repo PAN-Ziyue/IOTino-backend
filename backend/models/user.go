@@ -1,18 +1,18 @@
-package Models
+package models
 
 import (
-	"IOTino/Config"
-	"github.com/gin-gonic/gin"
-	_ "gorm.io/driver/mysql"
-	"net/http"
+    "IOTino/config"
+    "github.com/gin-gonic/gin"
+    _ "gorm.io/driver/mysql"
+    "net/http"
 )
 
 type User struct {
-	ID       uint   `gorm:"primaryKey" swaggerignore:"true"`
-	Account  string `json:"account" gorm:"unique;size:255"`
-	Email    string `json:"email" gorm:"unique;size:255"`
-	Password string `json:"password" gorm:"size:255" swaggerignore:"true"`
-	Verified bool   `gorm:"default:false"`
+    ID       uint   `gorm:"primaryKey" swaggerignore:"true"`
+    Account  string `json:"account" gorm:"unique;size:255"`
+    Email    string `json:"email" gorm:"unique;size:255"`
+    Password string `json:"password" gorm:"size:255" swaggerignore:"true"`
+    Verified bool   `gorm:"default:false"`
 }
 
 // TODO add error handling
@@ -28,21 +28,24 @@ type User struct {
 // @Failure 400 {string} string "error"
 // @Router /api/user [POST]
 func CreateUser(c *gin.Context) {
-	var user User
-	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+    var user User
+    if err := c.ShouldBindJSON(&user); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
 
-	if err := Config.DB.Create(&user).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+    if err := config.DB.Create(&user).Error; err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
 
-	print("ok")
-	c.String(http.StatusOK, "ok")
+    print("ok")
+    c.String(http.StatusOK, "ok")
 }
 
+func VerifyUser(c *gin.Context) {
+
+}
 
 // UpdatePassword godoc
 // @Summary update a user's password

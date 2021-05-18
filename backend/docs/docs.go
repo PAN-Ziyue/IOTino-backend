@@ -87,7 +87,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Models.Device"
+                            "$ref": "#/definitions/models.Device"
                         }
                     },
                     "400": {
@@ -185,7 +185,7 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/Models.Device"
+                                "$ref": "#/definitions/models.Device"
                             }
                         }
                     },
@@ -222,7 +222,7 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/Models.Location"
+                                "$ref": "#/definitions/models.Location"
                             }
                         }
                     },
@@ -250,7 +250,7 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/Models.Location"
+                                "$ref": "#/definitions/models.Location"
                             }
                         }
                     },
@@ -276,7 +276,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Models.User"
+                            "$ref": "#/definitions/models.User"
                         }
                     },
                     "400": {
@@ -391,7 +391,7 @@ var doc = `{
         }
     },
     "definitions": {
-        "Models.Device": {
+        "models.Device": {
             "type": "object",
             "properties": {
                 "alert": {
@@ -417,7 +417,7 @@ var doc = `{
                 }
             }
         },
-        "Models.Location": {
+        "models.Location": {
             "type": "object",
             "properties": {
                 "latitude": {
@@ -431,7 +431,7 @@ var doc = `{
                 }
             }
         },
-        "Models.User": {
+        "models.User": {
             "type": "object",
             "properties": {
                 "account": {

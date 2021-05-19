@@ -1,7 +1,8 @@
 package models
 
 import (
-    setting "IOTino/pkg"
+    "IOTino/pkg/settings"
+
     "gorm.io/driver/mysql"
     "gorm.io/gorm"
 )
@@ -12,7 +13,7 @@ func init() {
     println("connect to database")
 
     // load database parameters
-    sec, err := setting.Config.GetSection("database")
+    sec, err := settings.Config.GetSection("database")
 
     if err != nil {
         panic(err)
@@ -30,5 +31,4 @@ func init() {
     }
 
     println("migrate tables")
-
 }

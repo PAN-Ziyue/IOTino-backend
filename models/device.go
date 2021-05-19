@@ -1,6 +1,12 @@
 package models
 
-import "github.com/gin-gonic/gin"
+import (
+	"IOTino/pkg/e"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+)
 
 type Device struct {
 	ID               uint   `gorm:"primaryKey" swaggerignore:"true"`
@@ -15,17 +21,34 @@ type Device struct {
 	CurrentLongitude float64
 }
 
-// GetDeviceByID godoc
-// @Summary get a device by ID
-// @Tags Device
-// @Accept  json
-// @Param device path string true "device id"
-// @Success 200 {object} Device
-// @Failure 400 {string} string "error"
-// @Router /api/device/{device} [GET]
-func GetDeviceByID(c *gin.Context) {
+// CreateDevice
+// Create a device
+func CreateDevice(device *Device) e.Status {
+	var DuplicateDevices []Device
+	err := DB.Where("Device = ?", device.Device).Find(&DuplicateDevices).Error
+	if err != gorm.ErrRecordNotFound {
+		return e.New(http.StatusConflict, e.ConflictDevice)
+	}
 
+	DB.Create(Device{})
+	return e.New(http.StatusCreated, e.DeviceCreated)
 }
+
+// GetDeviceByID
+// Get a device by its ID
+func GetDeviceByID(DeviceID string) (e.Status, Device) {
+	var device Device
+
+	err := DB.Where("Device = ?", DeviceID).First(&device).Error
+	if err != gorm.ErrRecordNotFound {
+		return e.New(http.StatusOK, e.DeviceNotFound), Device{}
+	}
+
+	return e.DefaultStatus(), device
+}
+
+
+
 
 // GetDevices godoc
 // @Summary get all devices
@@ -35,19 +58,6 @@ func GetDeviceByID(c *gin.Context) {
 // @Failure 400 {string} string "error"
 // @Router /api/devices [GET]
 func GetDevices(c *gin.Context) {
-
-}
-
-// CreateDevice godoc
-// @Summary create a device
-// @Tags Device
-// @Accept  json
-// @Param device query string true "device id"
-// @Param name query string true "device name"
-// @Success 200 {string} string "ok"
-// @Failure 400 {string} string "error"
-// @Router /api/device [POST]
-func CreateDevice(c *gin.Context) {
 
 }
 

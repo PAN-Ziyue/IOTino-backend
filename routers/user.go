@@ -4,13 +4,10 @@ import (
 	"IOTino/models"
 	"IOTino/pkg/e"
 	"IOTino/utils"
-	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-sql-driver/mysql"
 )
-
 
 func Login(c *gin.Context) {
 	var login models.Login
@@ -70,9 +67,8 @@ func CreateUser(c *gin.Context) {
 	if err := models.DB.Create(&user).Error; err != nil {
 		status := e.DefaultError()
 
-		var mysqlErr mysql.MySQLError
-		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
-			status.Msg = e.DuplicateUser
+		if models.CheckDuplicate(&user) {
+			status.Set(http.StatusBadRequest, e.DuplicateUser)
 		}
 
 		c.JSON(status.Code, gin.H{"msg": status.Msg})

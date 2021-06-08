@@ -30,6 +30,16 @@ func VerifyUser(login Login) bool {
 	return result.RowsAffected > 0
 }
 
+func CheckDuplicate(user *User) bool {
+	var emailUsers []User
+	var accountUsers []User
+
+	emailResult := DB.Where(&User{Email: user.Email}).First(&emailUsers)
+	accountResult := DB.Where(&User{Account: user.Account}).First(&accountUsers)
+
+	return emailResult.RowsAffected > 0 || accountResult.RowsAffected > 0
+}
+
 // UpdatePassword godoc
 // @Summary update a user's password
 // @Tags User

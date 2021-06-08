@@ -44,7 +44,7 @@ func New(Code int, Msg string) Status {
 	return status
 }
 
-func (status Status) Set(Code int, Msg string) {
+func (status *Status) Set(Code int, Msg string) {
 	status.Code = Code
 	status.Msg = Msg
 }

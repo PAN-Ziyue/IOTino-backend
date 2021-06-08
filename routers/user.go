@@ -8,29 +8,17 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator"
 	"github.com/go-sql-driver/mysql"
 )
 
-type Auth struct {
-	Account string `validate:"required,gt=10"`
-	Email   string `validate:"required,email"`
-}
-
-var validate = validator.New()
 
 func Login(c *gin.Context) {
-	account := c.Query("account")
-	email := c.Query("email")
+	var login models.Login
 	status := e.DefaultOk()
 
-	// create jwt auth
-	auth := Auth{Account: account, Email: email}
-
-	// authenticate
-	err := validate.Struct(auth)
-	if err != nil {
-		status = e.New(http.StatusBadRequest, e.BadParameter)
+	if err := c.ShouldBindJSON(&login); err != nil {
+		println("[LOG] invalid parameter")
+		status.Set(http.StatusBadRequest, e.BadParameter)
 		c.JSON(status.Code, gin.H{"msg": status.Msg})
 		return
 	}
@@ -39,11 +27,10 @@ func Login(c *gin.Context) {
 	data := make(map[string]interface{})
 
 	// check exist
-	isExist := models.CheckAuth(account, email)
+	exist := models.VerifyUser(login)
 
-	// TODO handle auth error
-	if isExist {
-		token, err := utils.GenerateToken(account, email)
+	if exist {
+		token, err := utils.GenerateToken(login.Email)
 		if err != nil {
 			status.Set(http.StatusUnauthorized, e.CannotGenToken)
 		} else {
@@ -58,12 +45,6 @@ func Login(c *gin.Context) {
 		"data": data,
 	})
 }
-
-
-
-
-
-
 
 // CreateUser godoc
 // @Summary create a user
@@ -81,7 +62,7 @@ func CreateUser(c *gin.Context) {
 	// bind parameter
 	if err := c.ShouldBindJSON(&user); err != nil {
 		status := e.New(http.StatusBadRequest, e.BadParameter)
-		c.JSON(status.Code, gin.H{"error": status.Msg})
+		c.JSON(status.Code, gin.H{"msg": status.Msg})
 		return
 	}
 
@@ -94,7 +75,7 @@ func CreateUser(c *gin.Context) {
 			status.Msg = e.DuplicateUser
 		}
 
-		c.JSON(status.Code, gin.H{"error": status.Msg})
+		c.JSON(status.Code, gin.H{"msg": status.Msg})
 		return
 	}
 

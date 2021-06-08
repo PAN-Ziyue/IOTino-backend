@@ -19,6 +19,7 @@ var KeepAlive int
 // server
 var RunMode string
 var HTTPPort string
+var SSLHost string
 var ReadTimeOut time.Duration
 var WriteTimeOut time.Duration
 var JwtSecret string
@@ -54,5 +55,6 @@ func InitSettings() {
 	}
 
 	HTTPPort = ":" + ServerSection.Key("HTTPPort").String()
+	SSLHost = ServerSection.Key("ServerAddr").String() + HTTPPort
 	RunMode = ServerSection.Key("RunMode").String()
 }

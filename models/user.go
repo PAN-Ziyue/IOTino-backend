@@ -13,11 +13,21 @@ type User struct {
 	Verified bool   `json:"-" gorm:"default:false"`
 }
 
-// TODO add error handling
+type Login struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
 
+func VerifyUser(login Login) bool {
+	var users []User
+	user := User{
+		Email:    login.Email,
+		Password: login.Password,
+	}
 
-func VerifyUser(c *gin.Context) {
+	result := DB.Where(&user).First(&users)
 
+	return result.RowsAffected > 0
 }
 
 // UpdatePassword godoc

@@ -1,32 +1,39 @@
 package routers
 
 import (
-    "IOTino/pkg/settings"
+	"IOTino/middleware/jwt"
+	"IOTino/pkg/settings"
 
-    "github.com/gin-gonic/gin"
-    "github.com/swaggo/files"
-    "github.com/swaggo/gin-swagger"
+	"github.com/gin-gonic/gin"
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
 )
 
 func InitRouter() *gin.Engine {
-    r := gin.New()
+	r := gin.New()
 
-    //r.Use(gin.Logger())
-    //r.Use(gin.Recovery())
+	r.Use(gin.Logger())
+	r.Use(gin.Recovery())
 
-    gin.SetMode(settings.RunMode)
+	gin.SetMode(settings.RunMode)
 
-    r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	r.GET("/swagger/*any",
+		ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-    group := r.Group("/api")
-    {
-        // Device
-    	group.POST("/device", CreateDevice)
-        group.GET("/device/:device", GetDeviceByID)
+	// JWT authentication
+	r.GET("/auth", GetAuth)
 
-    	// User
-        group.POST("/register", CreateUser)
-    }
+	// restricted operations
+	group := r.Group("/api")
+	group.Use(jwt.JWT())
+	{
+		// Device
+		group.POST("/device", CreateDevice)
+		group.GET("/device/:device", GetDeviceByID)
 
-    return r
+		// User
+		group.POST("/register", CreateUser)
+	}
+
+	return r
 }

@@ -6,19 +6,22 @@ import (
 	"time"
 )
 
-// .ini file
+// Config
+// load from IOTino.ini
 var Config *ini.File
+
+// mqtt
+var MQTTAddr string
+var MQTTPort string
+var MQTTHost string
+var KeepAlive int
 
 // server
 var RunMode string
-var HttpPort string
-var MQTTPort int
+var HTTPPort string
 var ReadTimeOut time.Duration
 var WriteTimeOut time.Duration
 var JwtSecret string
-
-// MQTT
-var KEEP_ALIVE int
 
 func InitSettings() {
 	var err error
@@ -31,55 +34,25 @@ func InitSettings() {
 		panic(err)
 	}
 
-	sec, err := Config.GetSection("server")
+	MQTTSection, err := Config.GetSection("MQTT")
 	if err != nil {
 		panic(err)
 	}
 
-	HttpPort = ":" + sec.Key("HTTP_PORT").String()
-	RunMode = sec.Key("RUN_MODE").String()
+	MQTTPort = MQTTSection.Key("MQTTPort").String()
+	MQTTAddr = MQTTSection.Key("MQTTAddr").String()
+	MQTTHost = MQTTAddr + ":" + MQTTPort
+	KeepAlive, err = MQTTSection.Key("KeepAlive").Int()
 
-}
-
-var TCP_ADDR = "localhost:1883"
-
-var jwtSecret []byte
-
-type Claims struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	jwt.StandardClaims
-}
-
-func GenerateToken(username, password string) (string, error) {
-	nowTime := time.Now()
-	expireTime := nowTime.Add(3 * time.Hour)
-
-	claims := Claims{
-		username,
-		password,
-		jwt.StandardClaims{
-			ExpiresAt: expireTime.Unix(),
-			Issuer:    "gin-blog",
-		},
+	if err != nil {
+		panic(err)
 	}
 
-	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token, err := tokenClaims.SignedString(jwtSecret)
-
-	return token, err
-}
-
-func ParseToken(token string) (*Claims, error) {
-	tokenClaims, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		return jwtSecret, nil
-	})
-
-	if tokenClaims != nil {
-		if claims, ok := tokenClaims.Claims.(*Claims); ok && tokenClaims.Valid {
-			return claims, nil
-		}
+	ServerSection, err := Config.GetSection("Server")
+	if err != nil {
+		panic(err)
 	}
 
-	return nil, err
+	HTTPPort = ":" + ServerSection.Key("HTTPPort").String()
+	RunMode = ServerSection.Key("RunMode").String()
 }

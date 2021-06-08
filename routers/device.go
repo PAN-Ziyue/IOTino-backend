@@ -64,3 +64,22 @@ func GetDeviceByID(c *gin.Context) {
 		c.JSON(status.Code, gin.H{"msg": status.Msg})
 	}
 }
+
+
+// GetDevices godoc
+// @Summary get all devices
+// @Tags Device
+// @Accept  json
+// @Success 200 {array} Device
+// @Failure 400 {string} string "error"
+// @Router /api/devices [GET]
+func GetDevices(c *gin.Context) {
+	//var data []models.Device
+
+
+}
+
+
+
+
+

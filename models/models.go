@@ -9,11 +9,11 @@ import (
 
 var DB *gorm.DB
 
-func init() {
+func InitDB() {
     println("connect to database")
 
     // load database parameters
-    sec, err := settings.Config.GetSection("database")
+    sec, err := settings.Config.GetSection("Database")
 
     if err != nil {
         panic(err)

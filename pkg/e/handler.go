@@ -14,6 +14,12 @@ const (
 	DeviceCreated  = "成功创建设备"
 	DeviceNotFound = "无法找到设备"
 	ConflictDevice = "无法重复创建设备"
+
+	WrongAccount = "用户名或密码错误"
+
+	ParseTokenError = "无法验证Token"
+	CannotGenToken  = "Token生成失败"
+	AuthTimeout     = "Token已超时"
 )
 
 func DefaultStatus() Status {

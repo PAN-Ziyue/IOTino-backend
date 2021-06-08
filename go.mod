@@ -11,6 +11,7 @@ require (
 	github.com/go-ini/ini v1.62.0
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/go-playground/validator/v10 v10.2.0
+	github.com/go-sql-driver/mysql v1.5.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14

@@ -11,8 +11,9 @@ import (
 
 func JWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		println("[LOG] JWT")
 		var data interface{}
-		status := e.DefaultStatus()
+		status := e.DefaultOk()
 		token := c.Query("token")
 
 		if token == "" {

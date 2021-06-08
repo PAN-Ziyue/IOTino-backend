@@ -15,17 +15,25 @@ const (
 	DeviceNotFound = "无法找到设备"
 	ConflictDevice = "无法重复创建设备"
 
-	WrongAccount = "用户名或密码错误"
+	WrongAccount  = "用户名或密码错误"
+	DuplicateUser = "用户名或者邮箱已被注册"
 
 	ParseTokenError = "无法验证Token"
 	CannotGenToken  = "Token生成失败"
 	AuthTimeout     = "Token已超时"
 )
 
-func DefaultStatus() Status {
+func DefaultOk() Status {
 	status := Status{}
 	status.Code = http.StatusOK
 	status.Msg = "ok"
+	return status
+}
+
+func DefaultError() Status {
+	status := Status{}
+	status.Code = http.StatusBadRequest
+	status.Msg = "error"
 	return status
 }
 

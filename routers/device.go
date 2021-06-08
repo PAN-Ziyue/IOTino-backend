@@ -20,7 +20,7 @@ import (
 // @Router /api/device [POST]
 func CreateDevice(c *gin.Context) {
 	var data models.Device
-	var status = e.DefaultStatus()
+	var status = e.DefaultOk()
 	var err error
 
 	// bind model
@@ -50,7 +50,7 @@ func CreateDevice(c *gin.Context) {
 // @Router /api/device/{device} [GET]
 func GetDeviceByID(c *gin.Context) {
 	var data models.Device
-	var status = e.DefaultStatus()
+	var status = e.DefaultOk()
 	var DeviceID string = c.Param("device")
 
 	status, data = models.GetDeviceByID(DeviceID)

@@ -20,8 +20,10 @@ func InitRouter() *gin.Engine {
 	r.GET("/swagger/*any",
 		ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// JWT authentication
-	r.GET("/auth", GetAuth)
+	// user
+	r.GET("/login", Login)
+	r.POST("/register", CreateUser)
+
 
 	// restricted operations
 	group := r.Group("/api")
@@ -30,9 +32,6 @@ func InitRouter() *gin.Engine {
 		// Device
 		group.POST("/device", CreateDevice)
 		group.GET("/device/:device", GetDeviceByID)
-
-		// User
-		group.POST("/register", CreateUser)
 	}
 
 	return r

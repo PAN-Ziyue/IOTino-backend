@@ -44,7 +44,7 @@ func GetDeviceByID(DeviceID string) (e.Status, Device) {
 		return e.New(http.StatusOK, e.DeviceNotFound), Device{}
 	}
 
-	return e.DefaultStatus(), device
+	return e.DefaultOk(), device
 }
 
 

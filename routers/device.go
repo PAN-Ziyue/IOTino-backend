@@ -18,17 +18,21 @@ import (
 // @Failure 400 {string} string "error"
 // @Router /api/device [POST]
 func CreateDevice(c *gin.Context) {
-	var device models.Device
+	var deviceJSON models.DeviceJSON
 	var status = e.DefaultOk()
 
 	// bind model
-	err := c.BindJSON(&device)
+	err := c.BindJSON(&deviceJSON)
 	if err != nil {
 		status.Set(http.StatusBadRequest, e.BadParameter)
 		c.JSON(status.Code, gin.H{"msg": status.Msg})
 		return
 	}
 
+	device := models.Device{
+		Device: deviceJSON.Device,
+		Name:   deviceJSON.Name,
+	}
 	// get user metadata
 
 	auth_user, exist := c.Get("auth")
@@ -68,7 +72,7 @@ func GetDeviceByID(c *gin.Context) {
 	var status = e.DefaultOk()
 	var DeviceID string = c.Param("device")
 
-	status, data = models.GetDeviceByID(DeviceID)
+	data, status = models.GetDeviceByID(DeviceID)
 
 	if status.Code == http.StatusOK {
 		c.JSON(status.Code, gin.H{
@@ -88,6 +92,40 @@ func GetDeviceByID(c *gin.Context) {
 // @Failure 400 {string} string "error"
 // @Router /api/devices [GET]
 func GetDevices(c *gin.Context) {
-	//var data []models.Device
+	var devices []models.Device
+	var status = e.DefaultOk()
+
+	auth_user, exist := c.Get("auth")
+	if !exist {
+		status.Set(http.StatusBadRequest, e.BadParameter)
+		c.JSON(status.Code, gin.H{"msg": status.Msg})
+		return
+	}
+
+	user, ok := auth_user.(models.User)
+	if !ok {
+		status.Set(http.StatusBadRequest, e.BadParameter)
+		c.JSON(status.Code, gin.H{"msg": status.Msg})
+		return
+	}
+
+	devices, status = models.GetDevices(&user)
+
+	c.JSON(status.Code, gin.H{
+		"msg":  status.Msg,
+		"data": devices,
+	})
+}
+
+// UpdateDevice godoc
+// @Summary update a device
+// @Tags Device
+// @Accept  json
+// @Param device path string true "device id"
+// @Param name query string true "device name"
+// @Success 200 {string} string "ok"
+// @Failure 400 {string} string "error"
+// @Router /api/device/{device} [PUT]
+func UpdateDevice(c *gin.Context) {
 
 }

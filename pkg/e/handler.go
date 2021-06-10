@@ -10,9 +10,9 @@ type Status struct {
 const (
 	BadParameter = "非法参数"
 
-	DeviceCreated  = "成功创建设备"
-	DeviceNotFound = "无法找到设备"
-	ConflictDevice = "无法重复创建设备"
+	DeviceCreated      = "成功创建设备"
+	DeviceNotFound     = "无法找到指定的设备"
+	ConflictDevice     = "无法重复创建设备，设备ID或名称重复"
 	CannotCreateDevice = "无法创建设备"
 
 	WrongAccount  = "用户名或密码错误"
@@ -20,6 +20,7 @@ const (
 	UserNotFound  = "此用户不存在"
 
 	ParseTokenError = "无法验证Token"
+	Unauthorized    = "未经鉴权的操作"
 	CannotGenToken  = "Token生成失败"
 	AuthTimeout     = "Token已超时"
 )
@@ -48,4 +49,8 @@ func New(Code int, Msg string) Status {
 func (status *Status) Set(Code int, Msg string) {
 	status.Code = Code
 	status.Msg = Msg
+}
+
+func (status *Status) SetCode(Code int) {
+	status.Code = Code
 }

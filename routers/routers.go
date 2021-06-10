@@ -1,8 +1,8 @@
 package routers
 
 import (
-	"IOTino/middleware/jwt"
 	"IOTino/pkg/settings"
+	"IOTino/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/swaggo/files"
@@ -24,24 +24,18 @@ func InitRouter() *gin.Engine {
 	r.GET("/login", Login)
 	r.POST("/register", CreateUser)
 
-
 	// restricted operations
 	group := r.Group("/api")
-	group.Use(jwt.JWT())
+	group.Use(utils.JWT())
 	{
 		// Device
 		group.POST("/device", CreateDevice)
+		group.GET("/devices", GetDevices)
 		group.GET("/device/:device", GetDeviceByID)
 	}
 
 	return r
 }
-
-
-
-
-
-
 
 //func InitRouter() *gin.Engine {
 //	r := gin.New()

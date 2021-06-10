@@ -2,12 +2,24 @@ package mqtt
 
 import (
 	"IOTino/pkg/settings"
+	"encoding/json"
 	"fmt"
 	"net"
 	"time"
 
+	"github.com/astaxie/beego/logs"
 	"github.com/eclipse/paho.mqtt.golang/packets"
 )
+
+type MQTTMsg struct {
+	Alert     int     `json:"alert"`
+	ClientID  string  `json:"clientId"`
+	Info      string  `json:"info"`
+	Latitude  float64 `json:"lat"`
+	Longitude float64 `json:"lng"`
+	Timestamp int64   `json:"timestamp"`
+	Value     int64   `json:"value"`
+}
 
 func MQTT() {
 	listener, err := net.Listen("tcp", settings.MQTTHost)
@@ -91,7 +103,15 @@ func ProcessMessage(conn net.Conn) {
 }
 
 func ProcessPublish(conn net.Conn, packet *packets.PublishPacket) {
-	fmt.Println(packet)
+	// TODO
+	var msg MQTTMsg
+	err := json.Unmarshal(packet.Payload, &msg)
+	if err != nil {
+		logs.Error("Cannot get the mqtt packet", msg)
+	} else {
+
+	}
+
 	switch packet.Qos {
 	case 2:
 		pubrec := packets.NewControlPacket(packets.Pubrec).(*packets.PubrecPacket)

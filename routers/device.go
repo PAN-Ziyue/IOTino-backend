@@ -18,7 +18,12 @@ import (
 // @Failure 400 {string} string "error"
 // @Router /api/device [POST]
 func CreateDevice(c *gin.Context) {
-	var deviceJSON models.DeviceJSON
+	type DeviceJSON struct {
+		Device string `json:"device"`
+		Name   string `json:"name"`
+	}
+
+	var deviceJSON DeviceJSON
 	var status = e.DefaultOk()
 
 	// bind model
@@ -127,8 +132,13 @@ func GetDevices(c *gin.Context) {
 // @Failure 400 {string} string "error"
 // @Router /api/device/{device} [PUT]
 func UpdateDevice(c *gin.Context) {
-	var deviceJSON models.DeviceJSON
+	type DeviceJSON struct {
+		Name string `json:"name"`
+	}
+
+	var deviceJSON DeviceJSON
 	var status = e.DefaultOk()
+	var deviceID = c.Param("device")
 
 	// bind model
 	err := c.BindJSON(&deviceJSON)
@@ -138,14 +148,18 @@ func UpdateDevice(c *gin.Context) {
 		return
 	}
 
-	device := models.Device{
-		Device: deviceJSON.Device,
-		Name:   deviceJSON.Name,
+	// get the device
+	device, status := models.GetDeviceByID(deviceID)
+
+	if (models.Device{}) == device {
+		status.Set(http.StatusBadRequest, e.BadParameter)
+		c.JSON(status.Code, gin.H{"msg": status.Msg})
+		return
 	}
-	// get user metadata
+
+	device.Name = deviceJSON.Name
 
 	authUser, exist := c.Get("auth")
-
 	if !exist {
 		status.Set(http.StatusBadRequest, e.BadParameter)
 		c.JSON(status.Code, gin.H{"msg": status.Msg})
@@ -153,17 +167,13 @@ func UpdateDevice(c *gin.Context) {
 	}
 
 	user, ok := authUser.(models.User)
-
 	if !ok {
 		status.Set(http.StatusBadRequest, e.BadParameter)
 		c.JSON(status.Code, gin.H{"msg": status.Msg})
 		return
 	}
 
-	device.UserID = user.ID
-	device.User = user
-
-	status = models.CreateDevice(&device)
+	status = models.UpdateDevice(&user, &device)
 
 	c.JSON(status.Code, gin.H{"msg": status.Msg})
 }
@@ -177,7 +187,7 @@ func UpdateDevice(c *gin.Context) {
 // @Failure 400 {string} string "error"
 // @Router /api/device/{device} [DELETE]
 func DeleteDevice(c *gin.Context) {
-	var deviceID = c.Query("device_id")
+	var deviceID = c.Param("device")
 	var status = e.DefaultOk()
 
 	authUser, exist := c.Get("auth")

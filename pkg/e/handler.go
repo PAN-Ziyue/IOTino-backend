@@ -15,6 +15,8 @@ const (
 	ConflictDevice     = "无法重复创建设备，设备ID或名称重复"
 	CannotCreateDevice = "无法创建设备"
 	CannotDeleteDevice = "无法删除设备"
+	CannotUpdateDevice = "无法更新设备"
+	NoDevices          = "没有设备"
 
 	WrongAccount  = "用户名或密码错误"
 	DuplicateUser = "用户名或者邮箱已被注册"

@@ -5,11 +5,6 @@ import (
 	"net/http"
 )
 
-type DeviceJSON struct {
-	Device string `json:"device"`
-	Name   string `json:"name"`
-}
-
 type Device struct {
 	ID               uint    `json:"-" gorm:"primaryKey" swaggerignore:"true"`
 	UserID           uint    `json:"-" swaggerignore:"true"`
@@ -68,7 +63,7 @@ func GetDevices(user *User) ([]Device, e.Status) {
 	result := DB.Where("user_id = ?", user.ID).Find(&devices)
 
 	if result.RowsAffected == 0 {
-		status.SetCode(http.StatusNoContent)
+		status.Set(http.StatusOK, e.NoDevices)
 	}
 
 	return devices, status
@@ -81,6 +76,18 @@ func DeleteDevice(user *User, deviceID string) e.Status {
 
 	if err != nil {
 		status.Set(http.StatusNotFound, e.CannotDeleteDevice)
+	}
+
+	return status
+}
+
+func UpdateDevice(user *User, newDevice *Device) e.Status {
+	status := e.DefaultOk()
+
+	err := DB.Where("user_id = ?", user.ID).Save(newDevice).Error
+
+	if err != nil {
+		status.Set(http.StatusNotFound, e.CannotUpdateDevice)
 	}
 
 	return status

@@ -8,15 +8,16 @@ type Status struct {
 }
 
 const (
-	BadJson      = "JSON格式解析失败"
 	BadParameter = "非法参数"
 
 	DeviceCreated  = "成功创建设备"
 	DeviceNotFound = "无法找到设备"
 	ConflictDevice = "无法重复创建设备"
+	CannotCreateDevice = "无法创建设备"
 
 	WrongAccount  = "用户名或密码错误"
 	DuplicateUser = "用户名或者邮箱已被注册"
+	UserNotFound  = "此用户不存在"
 
 	ParseTokenError = "无法验证Token"
 	CannotGenToken  = "Token生成失败"

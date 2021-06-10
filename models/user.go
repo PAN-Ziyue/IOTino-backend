@@ -18,26 +18,39 @@ type Login struct {
 	Password string `json:"password"`
 }
 
-func VerifyUser(login Login) bool {
-	var users []User
-	user := User{
-		Email:    login.Email,
-		Password: login.Password,
-	}
+func VerifyUser(login Login) User {
+	var user User
 
-	result := DB.Where(&user).First(&users)
+	DB.Where(&User{Email: login.Email, Password: login.Password}).First(&user)
 
-	return result.RowsAffected > 0
+	return user
 }
 
 func CheckDuplicate(user *User) bool {
-	var emailUsers []User
-	var accountUsers []User
+	var emailUser User
+	var accountUser User
 
-	emailResult := DB.Where(&User{Email: user.Email}).First(&emailUsers)
-	accountResult := DB.Where(&User{Account: user.Account}).First(&accountUsers)
+	emailResult := DB.Where(&User{Email: user.Email}).First(&emailUser)
+	accountResult := DB.Where(&User{Account: user.Account}).First(&accountUser)
 
 	return emailResult.RowsAffected > 0 || accountResult.RowsAffected > 0
+}
+
+func GetUserByEmail(email string) (User, error) {
+	var user User
+
+	// query
+	err := DB.Where(&User{Email: email}).First(&user).Error
+
+	return user, err
+}
+
+func GetUserByID(id uint) (User, error) {
+	var user User
+
+	err := DB.First(&user, id).Error
+
+	return user, err
 }
 
 // UpdatePassword godoc
@@ -49,27 +62,5 @@ func CheckDuplicate(user *User) bool {
 // @Failure 400 {string} string "error"
 // @Router /api/user [PUT]
 func UpdatePassword(c *gin.Context) {
-
-}
-
-// DeleteUser godoc
-// @Summary delete a user
-// @Tags User
-// @Accept  json
-// @Success 200 {string} string "ok"
-// @Failure 400 {string} string "error"
-// @Router /api/user [DELETE]
-func DeleteUser(c *gin.Context) {
-
-}
-
-// GetUser godoc
-// @Summary get a user's specification
-// @Tags User
-// @Accept  json
-// @Success 200 {object} User
-// @Failure 400 {string} string "error"
-// @Router /api/user [GET]
-func GetUser(c *gin.Context) {
 
 }

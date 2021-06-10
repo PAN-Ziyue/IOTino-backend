@@ -12,15 +12,17 @@ var jwtSecret = []byte(settings.JwtSecret)
 // Claims
 // JWT claims
 type Claims struct {
-	Email   string `json:"email"`
+	ID    uint
+	Email string
 	jwt.StandardClaims
 }
 
-func GenerateToken(email string) (string, error) {
+func GenerateToken(id uint, email string) (string, error) {
 	nowTime := time.Now()
 	expireTime := nowTime.Add(3 * time.Hour)
 
 	claims := Claims{
+		id,
 		email,
 		jwt.StandardClaims{
 			ExpiresAt: expireTime.Unix(),

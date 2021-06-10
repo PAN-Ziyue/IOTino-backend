@@ -17,6 +17,7 @@ var MQTTHost string
 var KeepAlive int
 
 // server
+var Domain string
 var RunMode string
 var HTTPPort string
 var SSLHost string
@@ -57,4 +58,5 @@ func InitSettings() {
 	HTTPPort = ":" + ServerSection.Key("HTTPPort").String()
 	SSLHost = ServerSection.Key("ServerAddr").String() + HTTPPort
 	RunMode = ServerSection.Key("RunMode").String()
+	Domain = ServerSection.Key("ServerAddr").String()
 }

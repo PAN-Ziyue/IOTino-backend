@@ -9,29 +9,38 @@ import (
 )
 
 type Device struct {
-	ID               uint   `gorm:"primaryKey" swaggerignore:"true"`
-	UserID           uint   `swaggerignore:"true"`
-	User             User   `gorm:"foreignKey:UserID" swaggerignore:"true"`
-	Device           string `json:"device" gorm:"unique;size:255"`
-	Name             string `json:"name" gorm:"unique;size:255"`
-	Online           bool
-	Alert            bool
-	Count            uint
-	CurrentLatitude  float64
-	CurrentLongitude float64
+	ID               uint    `json:"-" gorm:"primaryKey" swaggerignore:"true"`
+	UserID           uint    `json:"-" swaggerignore:"true"`
+	User             User    `json:"-" gorm:"foreignKey:UserID" swaggerignore:"true"`
+	Device           string  `json:"device" gorm:"unique;size:255"`
+	Name             string  `json:"name" gorm:"unique;size:255"`
+	Online           bool    `json:"-"`
+	Alert            bool    `json:"-"`
+	Count            uint    `json:"-"`
+	CurrentLatitude  float64 `json:"-"`
+	CurrentLongitude float64 `json:"-"`
 }
 
 // CreateDevice
 // Create a device
 func CreateDevice(device *Device) e.Status {
 	var DuplicateDevices []Device
-	err := DB.Where("Device = ?", device.Device).Find(&DuplicateDevices).Error
-	if err != gorm.ErrRecordNotFound {
-		return e.New(http.StatusConflict, e.ConflictDevice)
+	status := e.New(http.StatusCreated, e.DeviceCreated)
+
+	result := DB.Where("Device = ?", device.Device).Find(&DuplicateDevices)
+
+	if result.RowsAffected > 0 {
+		status.Set(http.StatusConflict, e.ConflictDevice)
+		return status
 	}
 
-	DB.Create(Device{})
-	return e.New(http.StatusCreated, e.DeviceCreated)
+	err := DB.Create(device).Error
+
+	if err != nil {
+		status.Set(http.StatusUnprocessableEntity, e.CannotCreateDevice)
+	}
+
+	return status
 }
 
 // GetDeviceByID
@@ -46,11 +55,6 @@ func GetDeviceByID(DeviceID string) (e.Status, Device) {
 
 	return e.DefaultOk(), device
 }
-
-
-
-
-
 
 // UpdateDevice godoc
 // @Summary update a device

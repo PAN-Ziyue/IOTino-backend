@@ -6,6 +6,7 @@ import (
 	"IOTino/pkg/mqtt"
 	"IOTino/pkg/settings"
 	"IOTino/routers"
+	"IOTino/utils"
 	"fmt"
 )
 
@@ -19,6 +20,7 @@ func main() {
 
 	settings.InitSettings()
 	models.InitDB()
+	utils.InitValidator()
 
 	println("set up mqtt broker")
 	go mqtt.MQTT()

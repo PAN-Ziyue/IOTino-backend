@@ -5,7 +5,6 @@ import (
 	"IOTino/pkg/e"
 	"net/http"
 
-	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,23 +18,39 @@ import (
 // @Failure 400 {string} string "error"
 // @Router /api/device [POST]
 func CreateDevice(c *gin.Context) {
-	var data models.Device
+	var device models.Device
 	var status = e.DefaultOk()
-	var err error
 
 	// bind model
-	err = c.BindJSON(&data)
-
+	err := c.BindJSON(&device)
 	if err != nil {
-		status.Set(http.StatusBadRequest, e.BadJson)
-	} else {
-		valid := validation.Validation{}
-		if !valid.HasErrors() {
-			status = models.CreateDevice(&data)
-		} else {
-			status.Set(http.StatusBadRequest, e.BadParameter)
-		}
+		status.Set(http.StatusBadRequest, e.BadParameter)
+		c.JSON(status.Code, gin.H{"msg": status.Msg})
+		return
 	}
+
+	// get user metadata
+
+	auth_user, exist := c.Get("auth")
+
+	if !exist {
+		status.Set(http.StatusBadRequest, e.BadParameter)
+		c.JSON(status.Code, gin.H{"msg": status.Msg})
+		return
+	}
+
+	user, ok := auth_user.(models.User)
+
+	if !ok {
+		status.Set(http.StatusBadRequest, e.BadParameter)
+		c.JSON(status.Code, gin.H{"msg": status.Msg})
+		return
+	}
+
+	device.UserID = user.ID
+	device.User = user
+
+	status = models.CreateDevice(&device)
 
 	c.JSON(status.Code, gin.H{"msg": status.Msg})
 }
@@ -65,7 +80,6 @@ func GetDeviceByID(c *gin.Context) {
 	}
 }
 
-
 // GetDevices godoc
 // @Summary get all devices
 // @Tags Device
@@ -76,10 +90,4 @@ func GetDeviceByID(c *gin.Context) {
 func GetDevices(c *gin.Context) {
 	//var data []models.Device
 
-
 }
-
-
-
-
-

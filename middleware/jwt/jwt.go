@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"IOTino/models"
 	"IOTino/pkg/e"
 	"IOTino/utils"
 	"net/http"
@@ -11,32 +12,39 @@ import (
 
 func JWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		println("[LOG] JWT")
-		var data interface{}
 		status := e.DefaultOk()
-		token := c.Query("token")
+
+		token, err := c.Cookie("token")
 
 		if token == "" {
 			status.Set(http.StatusBadRequest, e.BadParameter)
-		} else {
-			claims, err := utils.ParseToken(token)
-			if err != nil {
-				status.Set(http.StatusUnauthorized, e.ParseTokenError)
-			} else if time.Now().Unix() > claims.ExpiresAt {
-				status.Set(http.StatusUnauthorized, e.AuthTimeout)
-			}
-		}
-
-		if status.Code != http.StatusOK {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"msg":  status.Msg,
-				"data": data,
-			})
-
+			c.JSON(status.Code, gin.H{"msg": status.Msg})
 			c.Abort()
 			return
 		}
 
+		claims, err := utils.ParseToken(token)
+		if err != nil {
+			status.Set(http.StatusUnauthorized, e.ParseTokenError)
+		} else if time.Now().Unix() > claims.ExpiresAt {
+			status.Set(http.StatusUnauthorized, e.AuthTimeout)
+		}
+
+		if status.Code != http.StatusOK {
+			c.JSON(status.Code, gin.H{"msg": status.Msg})
+			c.Abort()
+			return
+		}
+
+		user, err := models.GetUserByID(claims.ID)
+		if err != nil {
+			status.Set(http.StatusNoContent, e.UserNotFound)
+			c.JSON(status.Code, gin.H{"msg": status.Msg})
+			c.Abort()
+			return
+		}
+
+		c.Set("auth", user)
 		c.Next()
 	}
 }

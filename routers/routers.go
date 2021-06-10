@@ -32,6 +32,7 @@ func InitRouter() *gin.Engine {
 		group.POST("/device", CreateDevice)
 		group.GET("/devices", GetDevices)
 		group.GET("/device/:device", GetDeviceByID)
+		group.DELETE("/device", DeleteDevice)
 	}
 
 	return r

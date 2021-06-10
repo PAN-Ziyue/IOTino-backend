@@ -35,7 +35,7 @@ func CreateDevice(c *gin.Context) {
 	}
 	// get user metadata
 
-	auth_user, exist := c.Get("auth")
+	authUser, exist := c.Get("auth")
 
 	if !exist {
 		status.Set(http.StatusBadRequest, e.BadParameter)
@@ -43,7 +43,7 @@ func CreateDevice(c *gin.Context) {
 		return
 	}
 
-	user, ok := auth_user.(models.User)
+	user, ok := authUser.(models.User)
 
 	if !ok {
 		status.Set(http.StatusBadRequest, e.BadParameter)
@@ -70,7 +70,7 @@ func CreateDevice(c *gin.Context) {
 func GetDeviceByID(c *gin.Context) {
 	var data models.Device
 	var status = e.DefaultOk()
-	var DeviceID string = c.Param("device")
+	var DeviceID = c.Param("device")
 
 	data, status = models.GetDeviceByID(DeviceID)
 
@@ -95,14 +95,14 @@ func GetDevices(c *gin.Context) {
 	var devices []models.Device
 	var status = e.DefaultOk()
 
-	auth_user, exist := c.Get("auth")
+	authUser, exist := c.Get("auth")
 	if !exist {
 		status.Set(http.StatusBadRequest, e.BadParameter)
 		c.JSON(status.Code, gin.H{"msg": status.Msg})
 		return
 	}
 
-	user, ok := auth_user.(models.User)
+	user, ok := authUser.(models.User)
 	if !ok {
 		status.Set(http.StatusBadRequest, e.BadParameter)
 		c.JSON(status.Code, gin.H{"msg": status.Msg})
@@ -127,5 +127,73 @@ func GetDevices(c *gin.Context) {
 // @Failure 400 {string} string "error"
 // @Router /api/device/{device} [PUT]
 func UpdateDevice(c *gin.Context) {
+	var deviceJSON models.DeviceJSON
+	var status = e.DefaultOk()
 
+	// bind model
+	err := c.BindJSON(&deviceJSON)
+	if err != nil {
+		status.Set(http.StatusBadRequest, e.BadParameter)
+		c.JSON(status.Code, gin.H{"msg": status.Msg})
+		return
+	}
+
+	device := models.Device{
+		Device: deviceJSON.Device,
+		Name:   deviceJSON.Name,
+	}
+	// get user metadata
+
+	authUser, exist := c.Get("auth")
+
+	if !exist {
+		status.Set(http.StatusBadRequest, e.BadParameter)
+		c.JSON(status.Code, gin.H{"msg": status.Msg})
+		return
+	}
+
+	user, ok := authUser.(models.User)
+
+	if !ok {
+		status.Set(http.StatusBadRequest, e.BadParameter)
+		c.JSON(status.Code, gin.H{"msg": status.Msg})
+		return
+	}
+
+	device.UserID = user.ID
+	device.User = user
+
+	status = models.CreateDevice(&device)
+
+	c.JSON(status.Code, gin.H{"msg": status.Msg})
+}
+
+// DeleteDevice godoc
+// @Summary delete a device
+// @Tags Device
+// @Accept json
+// @Param device path string true "device id"
+// @Success 200 {string} string "ok"
+// @Failure 400 {string} string "error"
+// @Router /api/device/{device} [DELETE]
+func DeleteDevice(c *gin.Context) {
+	var deviceID = c.Query("device_id")
+	var status = e.DefaultOk()
+
+	authUser, exist := c.Get("auth")
+	if !exist {
+		status.Set(http.StatusBadRequest, e.BadParameter)
+		c.JSON(status.Code, gin.H{"msg": status.Msg})
+		return
+	}
+
+	user, ok := authUser.(models.User)
+	if !ok {
+		status.Set(http.StatusBadRequest, e.BadParameter)
+		c.JSON(status.Code, gin.H{"msg": status.Msg})
+		return
+	}
+
+	status = models.DeleteDevice(&user, deviceID)
+	c.JSON(status.Code, gin.H{"msg": status.Msg})
 }

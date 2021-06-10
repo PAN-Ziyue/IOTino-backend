@@ -3,9 +3,6 @@ package models
 import (
 	"IOTino/pkg/e"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type DeviceJSON struct {
@@ -55,8 +52,9 @@ func GetDeviceByID(DeviceID string) (Device, e.Status) {
 	var device Device
 	status := e.DefaultOk()
 
-	err := DB.Where("Device = ?", DeviceID).First(&device).Error
-	if err != gorm.ErrRecordNotFound {
+	result := DB.Where("Device = ?", DeviceID).First(&device)
+
+	if result.RowsAffected == 0 {
 		status.Set(http.StatusOK, e.DeviceNotFound)
 	}
 
@@ -76,14 +74,14 @@ func GetDevices(user *User) ([]Device, e.Status) {
 	return devices, status
 }
 
-// DeleteDevice godoc
-// @Summary delete a device
-// @Tags Device
-// @Accept json
-// @Param device path string true "device id"
-// @Success 200 {string} string "ok"
-// @Failure 400 {string} string "error"
-// @Router /api/device/{device} [DELETE]
-func DeleteDevice(c *gin.Context) {
+func DeleteDevice(user *User, deviceID string) e.Status {
+	device, status := GetDeviceByID(deviceID)
 
+	err := DB.Where("user_id = ?", user.ID).Delete(&device).Error
+
+	if err != nil {
+		status.Set(http.StatusNotFound, e.CannotDeleteDevice)
+	}
+
+	return status
 }

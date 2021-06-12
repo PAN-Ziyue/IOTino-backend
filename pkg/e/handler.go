@@ -18,9 +18,11 @@ const (
 	CannotUpdateDevice = "无法更新设备"
 	NoDevices          = "没有设备"
 
-	WrongAccount  = "用户名或密码错误"
-	DuplicateUser = "用户名或者邮箱已被注册"
-	UserNotFound  = "此用户不存在"
+	WrongAccount     = "用户名或密码错误"
+	DuplicateUser    = "用户名或者邮箱已被注册"
+	UserNotFound     = "此用户不存在"
+	CannotCreateUser = "无法创建用户"
+	UserNotVerified  = "此用户尚未通过邮箱验证"
 
 	ParseTokenError = "无法验证Token"
 	Unauthorized    = "未经鉴权的操作"

@@ -2,8 +2,19 @@ package models
 
 import (
 	"IOTino/pkg/e"
+	"log"
 	"net/http"
 )
+
+type MQTTMsg struct {
+	Alert     int     `json:"alert"`
+	ClientID  string  `json:"clientId"`
+	Info      string  `json:"info"`
+	Latitude  float64 `json:"lat"`
+	Longitude float64 `json:"lng"`
+	Timestamp int64   `json:"timestamp"`
+	Value     int64   `json:"value"`
+}
 
 type Device struct {
 	ID               uint    `json:"-" gorm:"primaryKey" swaggerignore:"true"`
@@ -11,11 +22,11 @@ type Device struct {
 	User             User    `json:"-" gorm:"foreignKey:UserID" swaggerignore:"true"`
 	Device           string  `json:"device" gorm:"unique;size:255"`
 	Name             string  `json:"name" gorm:"unique;size:255"`
-	Online           bool    `json:"online"`
 	Alert            bool    `json:"alert"`
-	Count            uint    `json:"count"`
+	Count            uint64  `json:"count" gorm:"default:0"`
 	CurrentLatitude  float64 `json:"current_latitude"`
 	CurrentLongitude float64 `json:"current_longitude"`
+	Value            int64   `json:"value" gorm:"default:0"`
 }
 
 // CreateDevice
@@ -91,4 +102,24 @@ func UpdateDevice(user *User, newDevice *Device) e.Status {
 	}
 
 	return status
+}
+
+func HandleMQTT(msg *MQTTMsg) {
+	log.Println("An MQTT message is processed")
+
+	// device
+	var device Device
+
+	// get device
+	err := DB.Where("Device = ?", msg.ClientID).First(&device)
+	if err != nil {
+		log.Println("Invalid MQTT message, due to", err)
+		return
+	}
+
+	device.Alert = msg.Alert == 0
+	device.CurrentLongitude = msg.Longitude
+	device.CurrentLatitude = msg.Latitude
+	device.Count++
+	device.Value = msg.Value
 }

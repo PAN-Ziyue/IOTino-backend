@@ -5,7 +5,11 @@ import (
 	"IOTino/pkg/e"
 	"IOTino/pkg/settings"
 	"IOTino/utils"
+	"bytes"
+	"fmt"
 	"net/http"
+	"net/smtp"
+	"text/template"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,8 +34,13 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// make data
-	token, err := utils.GenerateToken(user.ID, login.Email)
+	if !user.Verified {
+		status.Set(http.StatusUnauthorized, e.UserNotVerified)
+		c.JSON(status.Code, gin.H{"msg": status.Msg})
+		return
+	}
+
+	token, err := utils.GenerateToken(user.ID, login.Email, user.Verified)
 
 	if err != nil {
 		status.Set(http.StatusUnauthorized, e.CannotGenToken)
@@ -39,13 +48,8 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("token",
-		token,
-		3600,
-		"/api/",
-		settings.Domain,
-		false,
-		true,
+	c.SetCookie("token", token, 3600*12,
+		"/api/", settings.Domain, false, true,
 	)
 
 	c.JSON(status.Code, gin.H{
@@ -76,35 +80,10 @@ func CreateUser(c *gin.Context) {
 	}
 
 	// create user
-	if err := models.DB.Create(&user).Error; err != nil {
-		if models.CheckDuplicate(&user) {
-			status.Set(http.StatusBadRequest, e.DuplicateUser)
-		}
+	status = models.CreateUser(&user)
 
-		c.JSON(status.Code, gin.H{"msg": status.Msg})
-		return
-	}
-
-	token, err := utils.GenerateToken(user.ID, user.Email)
-
-	if err != nil {
-		status.Set(http.StatusUnauthorized, e.CannotGenToken)
-		c.JSON(status.Code, gin.H{"msg": status.Msg})
-		return
-	}
-
-	c.SetCookie("token",
-		token,
-		3600,
-		"/api/",
-		settings.Domain,
-		false,
-		true,
-	)
-
-	c.JSON(http.StatusOK, gin.H{
-		"msg":   "ok",
-		"token": token,
+	c.JSON(status.Code, gin.H{
+		"msg": status.Msg,
 	})
 }
 
@@ -136,4 +115,57 @@ func DeleteUser(c *gin.Context) {
 // @Router /api/user [GET]
 func GetUser(c *gin.Context) {
 
+}
+
+// UpdatePassword godoc
+// @Summary update a user's password
+// @Tags User
+// @Accept  json
+// @Param password query string true "password"
+// @Success 200 {string} string "ok"
+// @Failure 400 {string} string "error"
+// @Router /api/user [PUT]
+func UpdatePassword(c *gin.Context) {
+
+}
+
+func SendVerifyEmail() {
+	// Sender data.
+	from := ""
+	password := ""
+
+	// Receiver email address.
+	to := []string{
+		"sender@example.com",
+	}
+
+	// smtp server configuration.
+	smtpHost := "smtp.gmail.com"
+	smtpPort := "587"
+
+	// Authentication.
+	auth := smtp.PlainAuth("", from, password, smtpHost)
+
+	t, _ := template.ParseFiles("template.html")
+
+	var body bytes.Buffer
+
+	mimeHeaders := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
+	body.Write([]byte(fmt.Sprintf("Subject: This is a test subject \n%s\n\n", mimeHeaders)))
+
+	t.Execute(&body, struct {
+		Name    string
+		Message string
+	}{
+		Name:    "Puneet Singh",
+		Message: "This is a test message in a HTML template",
+	})
+
+	// Sending email.
+	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, to, body.Bytes())
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("Email Sent!")
 }

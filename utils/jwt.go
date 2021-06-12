@@ -16,8 +16,9 @@ var jwtSecret = []byte(settings.JwtSecret)
 // Claims
 // JWT claims
 type Claims struct {
-	ID    uint
-	Email string
+	ID       uint
+	Email    string
+	Verified bool
 	jwt.StandardClaims
 }
 
@@ -49,7 +50,14 @@ func JWT() gin.HandlerFunc {
 
 		user, err := models.GetUserByID(claims.ID)
 		if err != nil {
-			status.Set(http.StatusNoContent, e.UserNotFound)
+			status.Set(http.StatusUnauthorized, e.UserNotFound)
+			c.JSON(status.Code, gin.H{"msg": status.Msg})
+			c.Abort()
+			return
+		}
+
+		if !user.Verified {
+			status.Set(http.StatusUnauthorized, e.UserNotVerified)
 			c.JSON(status.Code, gin.H{"msg": status.Msg})
 			c.Abort()
 			return
@@ -60,13 +68,14 @@ func JWT() gin.HandlerFunc {
 	}
 }
 
-func GenerateToken(id uint, email string) (string, error) {
+func GenerateToken(id uint, email string, verified bool) (string, error) {
 	nowTime := time.Now()
 	expireTime := nowTime.Add(3 * time.Hour)
 
 	claims := Claims{
 		id,
 		email,
+		verified,
 		jwt.StandardClaims{
 			ExpiresAt: expireTime.Unix(),
 			Issuer:    "IOTino",

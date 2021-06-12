@@ -1,7 +1,9 @@
 package models
 
 import (
-	"github.com/gin-gonic/gin"
+	"IOTino/pkg/e"
+	"net/http"
+
 	_ "gorm.io/driver/mysql"
 )
 
@@ -36,6 +38,21 @@ func CheckDuplicate(user *User) bool {
 	return emailResult.RowsAffected > 0 || accountResult.RowsAffected > 0
 }
 
+func CreateUser(user *User) e.Status {
+	status := e.DefaultOk()
+
+	err := DB.Create(&user).Error
+	if err != nil {
+		if CheckDuplicate(user) {
+			status.Set(http.StatusBadRequest, e.DuplicateUser)
+		} else {
+			status.Set(http.StatusBadRequest, e.CannotCreateUser)
+		}
+	}
+
+	return status
+}
+
 func GetUserByEmail(email string) (User, error) {
 	var user User
 
@@ -51,16 +68,4 @@ func GetUserByID(id uint) (User, error) {
 	err := DB.First(&user, id).Error
 
 	return user, err
-}
-
-// UpdatePassword godoc
-// @Summary update a user's password
-// @Tags User
-// @Accept  json
-// @Param password query string true "password"
-// @Success 200 {string} string "ok"
-// @Failure 400 {string} string "error"
-// @Router /api/user [PUT]
-func UpdatePassword(c *gin.Context) {
-
 }

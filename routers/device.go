@@ -43,7 +43,7 @@ func CreateDevice(c *gin.Context) {
 	authUser, exist := c.Get("auth")
 
 	if !exist {
-		status.Set(http.StatusBadRequest, e.BadParameter)
+		status.Set(http.StatusUnauthorized, e.UserNotFound)
 		c.JSON(status.Code, gin.H{"msg": status.Msg})
 		return
 	}
@@ -51,7 +51,7 @@ func CreateDevice(c *gin.Context) {
 	user, ok := authUser.(models.User)
 
 	if !ok {
-		status.Set(http.StatusBadRequest, e.BadParameter)
+		status.Set(http.StatusUnauthorized, e.UserNotFound)
 		c.JSON(status.Code, gin.H{"msg": status.Msg})
 		return
 	}
@@ -152,7 +152,7 @@ func UpdateDevice(c *gin.Context) {
 	device, status := models.GetDeviceByID(deviceID)
 
 	if (models.Device{}) == device {
-		status.Set(http.StatusBadRequest, e.BadParameter)
+		status.Set(http.StatusBadRequest, e.DeviceNotFound)
 		c.JSON(status.Code, gin.H{"msg": status.Msg})
 		return
 	}
@@ -161,14 +161,14 @@ func UpdateDevice(c *gin.Context) {
 
 	authUser, exist := c.Get("auth")
 	if !exist {
-		status.Set(http.StatusBadRequest, e.BadParameter)
+		status.Set(http.StatusUnauthorized, e.UserNotFound)
 		c.JSON(status.Code, gin.H{"msg": status.Msg})
 		return
 	}
 
 	user, ok := authUser.(models.User)
 	if !ok {
-		status.Set(http.StatusBadRequest, e.BadParameter)
+		status.Set(http.StatusUnauthorized, e.UserNotFound)
 		c.JSON(status.Code, gin.H{"msg": status.Msg})
 		return
 	}

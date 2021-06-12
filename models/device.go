@@ -111,7 +111,7 @@ func HandleMQTT(msg *MQTTMsg) {
 	var device Device
 
 	// get device
-	err := DB.Where("Device = ?", msg.ClientID).First(&device)
+	err := DB.Where("device = ?", msg.ClientID).First(&device).Error
 	if err != nil {
 		log.Println("Invalid MQTT message, due to", err)
 		return
@@ -122,4 +122,6 @@ func HandleMQTT(msg *MQTTMsg) {
 	device.CurrentLatitude = msg.Latitude
 	device.Count++
 	device.Value = msg.Value
+
+	DB.Save(&device)
 }

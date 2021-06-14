@@ -8,7 +8,7 @@ type Status struct {
 }
 
 const (
-	BadParameter = "非法参数"
+	BadParameter = "非法参数，请检查请求的格式"
 
 	DeviceCreated      = "成功创建设备"
 	DeviceNotFound     = "无法找到指定的设备"

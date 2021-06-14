@@ -21,8 +21,8 @@ func InitRouter() *gin.Engine {
 		ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// user
-	r.GET("/login", Login)
-	r.POST("/register", CreateUser)
+	r.POST("/api/login", Login)
+	r.POST("/api/register", CreateUser)
 
 	// restricted operations
 	group := r.Group("/api")

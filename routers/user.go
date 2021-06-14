@@ -140,15 +140,36 @@ func DeleteUser(c *gin.Context) {
     c.String(http.StatusOK, "ok")
 }
 
-// GetUser godoc
+
+// CurrentUser godoc
 // @Summary get a user's specification
 // @Tags User
 // @Accept  json
 // @Success 200 {object} User
 // @Failure 400 {string} string "error"
-// @Router /api/user [GET]
-func GetUser(c *gin.Context) {
+// @Router /api/currentUser [GET]
+func CurrentUser(c *gin.Context){
+    status := e.DefaultOk()
 
+    authUser, exist := c.Get("auth")
+    if !exist {
+        status.Set(http.StatusBadRequest, e.BadParameter)
+        c.JSON(status.Code, gin.H{"msg": status.Msg})
+        return
+    }
+
+    user, ok := authUser.(models.User)
+    if !ok {
+        status.Set(http.StatusBadRequest, e.BadParameter)
+        c.JSON(status.Code, gin.H{"msg": status.Msg})
+        return
+    }
+
+    c.JSON(status.Code, gin.H{
+        "account": user.Account,
+        "email": user.Email,
+        "msg":  status.Msg,
+    })
 }
 
 // UpdatePassword godoc
@@ -160,10 +181,11 @@ func GetUser(c *gin.Context) {
 // @Failure 400 {string} string "error"
 // @Router /api/user [PUT]
 func UpdatePassword(c *gin.Context) {
-
+    // TODO
 }
 
 func SendVerifyEmail() {
+    // TODO
     // Sender data.
     from := ""
     password := ""

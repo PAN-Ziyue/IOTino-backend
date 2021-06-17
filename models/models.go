@@ -38,4 +38,6 @@ func InitDB() {
 	if err != nil {
 		log.Panicln("Cannot migrate tables due to:", err)
 	}
+
+	DB.Model(&Device{}).Update("status", offline)
 }

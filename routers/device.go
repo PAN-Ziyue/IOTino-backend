@@ -8,6 +8,39 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func GetDashboard(c *gin.Context) {
+	status := e.DefaultOk()
+
+	authUser, exist := c.Get("auth")
+
+	if !exist {
+		status.Set(http.StatusUnauthorized, e.UserNotFound)
+		c.JSON(status.Code, gin.H{"msg": status.Msg})
+		return
+	}
+
+	user, ok := authUser.(models.User)
+
+	if !ok {
+		status.Set(http.StatusUnauthorized, e.UserNotFound)
+		c.JSON(status.Code, gin.H{"msg": status.Msg})
+		return
+	}
+
+	deviceCount, onlineCount, dataCount := models.CountDevice(&user)
+	chartData := models.GetChartData(&user)
+	locationData := models.GetLocationData(&user)
+
+	c.JSON(status.Code, gin.H{
+		"msg":          status.Msg,
+		"total":        deviceCount,
+		"online":       onlineCount,
+		"count":        dataCount,
+		"chartData":    chartData,
+		"locationData": locationData,
+	})
+}
+
 // CreateDevice godoc
 // @Summary create a device
 // @Tags Device
@@ -133,12 +166,12 @@ func GetDevices(c *gin.Context) {
 // @Router /api/device/{device} [PUT]
 func UpdateDevice(c *gin.Context) {
 	type DeviceJSON struct {
-		Name string `json:"name"`
+		Device string `json:"device"`
+		Name   string `json:"name"`
 	}
 
 	var deviceJSON DeviceJSON
 	var status = e.DefaultOk()
-	var deviceID = c.Param("device")
 
 	// bind model
 	err := c.BindJSON(&deviceJSON)
@@ -149,7 +182,7 @@ func UpdateDevice(c *gin.Context) {
 	}
 
 	// get the device
-	device, status := models.GetDeviceByID(deviceID)
+	device, status := models.GetDeviceByID(deviceJSON.Device)
 
 	if (models.Device{}) == device {
 		status.Set(http.StatusBadRequest, e.DeviceNotFound)
@@ -187,7 +220,10 @@ func UpdateDevice(c *gin.Context) {
 // @Failure 400 {string} string "error"
 // @Router /api/device/{device} [DELETE]
 func DeleteDevice(c *gin.Context) {
-	var deviceID = c.Param("device")
+	type DeviceJSON struct {
+		Device string `json:"device"`
+	}
+	var deviceJSON DeviceJSON
 	var status = e.DefaultOk()
 
 	authUser, exist := c.Get("auth")
@@ -204,6 +240,13 @@ func DeleteDevice(c *gin.Context) {
 		return
 	}
 
-	status = models.DeleteDevice(&user, deviceID)
+	err := c.BindJSON(&deviceJSON)
+	if err != nil {
+		status.Set(http.StatusBadRequest, e.BadParameter)
+		c.JSON(status.Code, gin.H{"msg": status.Msg})
+		return
+	}
+
+	status = models.DeleteDevice(&user, deviceJSON.Device)
 	c.JSON(status.Code, gin.H{"msg": status.Msg})
 }

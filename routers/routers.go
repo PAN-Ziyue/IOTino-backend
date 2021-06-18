@@ -31,6 +31,8 @@ func InitRouter() *gin.Engine {
 		// Device
 		group.GET("/currentUser", CurrentUser)
 		group.GET("/dashboard", GetDashboard)
+		group.PUT("/users", UpdateUser)
+		group.GET("/logout", LogoutUser)
 
 		group.POST("/devices", CreateDevice)
 		group.GET("/devices", GetDevices)

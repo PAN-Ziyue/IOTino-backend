@@ -37,9 +37,10 @@ func Login(c *gin.Context) {
 	}
 
 	// check exist
-	user := models.VerifyUser(login)
 
-	if (models.User{}) == user {
+	user, verified := models.VerifyUser(&login)
+
+	if !verified {
 		status.Set(http.StatusUnauthorized, e.WrongAccount)
 		c.JSON(status.Code, gin.H{"msg": status.Msg})
 		return

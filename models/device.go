@@ -18,16 +18,17 @@ type MQTTMsg struct {
 }
 
 type Device struct {
-	ID               uint    `json:"-" gorm:"primaryKey" swaggerignore:"true"`
-	UserID           uint    `json:"-" swaggerignore:"true"`
-	User             User    `json:"-" gorm:"foreignKey:UserID" swaggerignore:"true"`
-	Device           string  `json:"device" gorm:"unique;size:255"`
-	Name             string  `json:"name" gorm:"unique;size:255"`
-	Count            int64   `json:"count" gorm:"default:0"`
-	CurrentLatitude  float64 `json:"current_latitude"`
-	CurrentLongitude float64 `json:"current_longitude"`
-	Value            int64   `json:"value" gorm:"default:0"`
-	Status           string  `json:"status" gorm:"default:'offline'"`
+	ID               uint       `json:"-" gorm:"primaryKey" swaggerignore:"true"`
+	UserID           uint       `json:"-" swaggerignore:"true"`
+	User             User       `json:"-" gorm:"foreignKey:UserID" swaggerignore:"true"`
+	Device           string     `json:"device" gorm:"unique;size:255"`
+	Name             string     `json:"name" gorm:"unique;size:255"`
+	Count            int64      `json:"count" gorm:"default:0"`
+	CurrentLatitude  float64    `json:"current_latitude"`
+	CurrentLongitude float64    `json:"current_longitude"`
+	Value            int64      `json:"value" gorm:"default:0"`
+	Status           string     `json:"status" gorm:"default:'offline'"`
+	Trace            []Location `json:"trace" gorm:"-"`
 }
 
 type ChartData struct {
@@ -140,42 +141,44 @@ func CreateDevice(device *Device) e.Status {
 
 // GetDeviceByID
 // Get a device by its ID
-func GetDeviceByID(DeviceID string) (Device, e.Status) {
+func GetDeviceByID(DeviceID string) (Device, error) {
 	var device Device
-	status := e.DefaultOk()
 
-	result := DB.Where("Device = ?", DeviceID).First(&device)
-
-	if result.RowsAffected == 0 {
-		status.Set(http.StatusOK, e.DeviceNotFound)
+	err := DB.Where("Device = ?", DeviceID).First(&device).Error
+	if err != nil {
+		return device, nil
 	}
 
-	return device, status
+	return device, nil
 }
 
-func GetDevices(user *User) ([]Device, e.Status) {
+func GetDevices(user *User) []Device {
 	var devices []Device
-	status := e.DefaultOk()
 
-	result := DB.Where("user_id = ?", user.ID).Find(&devices)
+	DB.Where("user_id = ?", user.ID).Find(&devices)
 
-	if result.RowsAffected == 0 {
-		status.Set(http.StatusOK, e.NoDevices)
+	for i := range devices {
+		var trace []Location
+		DB.Order("time").Where("device_id = ?", devices[i].ID).Limit(10).Find(&trace)
+		devices[i].Trace = trace
 	}
 
-	return devices, status
+	return devices
 }
 
-func DeleteDevice(user *User, deviceID string) e.Status {
-	device, status := GetDeviceByID(deviceID)
-
-	err := DB.Where("user_id = ?", user.ID).Delete(&device).Error
+func DeleteDevice(user *User, deviceID string) error {
+	device, err := GetDeviceByID(deviceID)
 
 	if err != nil {
-		status.Set(http.StatusNotFound, e.CannotDeleteDevice)
+		return err
 	}
 
-	return status
+	err = DB.Where("user_id = ?", user.ID).Delete(&device).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func UpdateDevice(user *User, newDevice *Device) e.Status {
@@ -195,6 +198,7 @@ func HandleMQTT(msg *MQTTMsg) {
 
 	// device
 	var device Device
+	var location Location
 
 	// get device
 	err := DB.Where("device = ?", msg.ClientID).First(&device).Error
@@ -215,4 +219,12 @@ func HandleMQTT(msg *MQTTMsg) {
 	device.Value = msg.Value
 
 	DB.Save(&device)
+
+	location.Device = device
+	location.DeviceID = device.ID
+	location.Latitude = device.CurrentLatitude
+	location.Longitude = device.CurrentLongitude
+	location.Time = msg.Timestamp
+
+	DB.Create(&location)
 }

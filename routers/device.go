@@ -97,31 +97,6 @@ func CreateDevice(c *gin.Context) {
 	c.JSON(status.Code, gin.H{"msg": status.Msg})
 }
 
-// GetDeviceByID godoc
-// @Summary get a device by ID
-// @Tags Device
-// @Accept  json
-// @Param device path string true "device id"
-// @Success 200 {object} Device
-// @Failure 400 {string} string "error"
-// @Router /api/device/{device} [GET]
-func GetDeviceByID(c *gin.Context) {
-	var data models.Device
-	var status = e.DefaultOk()
-	var DeviceID = c.Param("device")
-
-	data, status = models.GetDeviceByID(DeviceID)
-
-	if status.Code == http.StatusOK {
-		c.JSON(status.Code, gin.H{
-			"msg":  status.Msg,
-			"data": data,
-		})
-	} else {
-		c.JSON(status.Code, gin.H{"msg": status.Msg})
-	}
-}
-
 // GetDevices godoc
 // @Summary get all devices
 // @Tags Device
@@ -130,7 +105,6 @@ func GetDeviceByID(c *gin.Context) {
 // @Failure 400 {string} string "error"
 // @Router /api/devices [GET]
 func GetDevices(c *gin.Context) {
-	var devices []models.Device
 	var status = e.DefaultOk()
 
 	authUser, exist := c.Get("auth")
@@ -147,7 +121,7 @@ func GetDevices(c *gin.Context) {
 		return
 	}
 
-	devices, status = models.GetDevices(&user)
+	devices := models.GetDevices(&user)
 
 	c.JSON(status.Code, gin.H{
 		"msg":  status.Msg,
@@ -182,9 +156,9 @@ func UpdateDevice(c *gin.Context) {
 	}
 
 	// get the device
-	device, status := models.GetDeviceByID(deviceJSON.Device)
+	device, err := models.GetDeviceByID(deviceJSON.Device)
 
-	if (models.Device{}) == device {
+	if err != nil {
 		status.Set(http.StatusBadRequest, e.DeviceNotFound)
 		c.JSON(status.Code, gin.H{"msg": status.Msg})
 		return
@@ -247,6 +221,10 @@ func DeleteDevice(c *gin.Context) {
 		return
 	}
 
-	status = models.DeleteDevice(&user, deviceJSON.Device)
+	err = models.DeleteDevice(&user, deviceJSON.Device)
+	if err != nil {
+		status.Set(http.StatusBadRequest, e.CannotDeleteDevice)
+	}
+
 	c.JSON(status.Code, gin.H{"msg": status.Msg})
 }

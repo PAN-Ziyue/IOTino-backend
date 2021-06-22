@@ -66,7 +66,6 @@ func BuildConnection(conn net.Conn) {
 }
 
 func ProcessMessage(conn net.Conn) {
-
 	timeout := time.Second * time.Duration(settings.KeepAlive)
 
 	for {

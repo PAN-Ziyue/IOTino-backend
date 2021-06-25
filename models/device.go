@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"sort"
+	"time"
 )
 
 type MQTTMsg struct {
@@ -28,6 +29,7 @@ type Device struct {
 	CurrentLongitude float64    `json:"current_longitude"`
 	Value            int64      `json:"value" gorm:"default:0"`
 	Status           string     `json:"status" gorm:"default:'offline'"`
+	Time             int64      `json:"-" gorm:"default:0"`
 	Trace            []Location `json:"trace" gorm:"-"`
 }
 
@@ -58,7 +60,8 @@ func CountDevice(user *User) (int64, int64, int64) {
 	var dataCount int64 = 0
 
 	DB.Model(&Device{}).Where("user_id = ?", user.ID).Count(&deviceCount)
-	DB.Model(&Device{}).Where("user_id = ? AND status <> ?", user.ID, offline).Count(&onlineCount)
+	DB.Model(&Device{}).Where("user_id = ? AND status <> ? AND time > ?",
+		user.ID, offline, time.Now().Add(-20*time.Minute).Unix()).Count(&onlineCount)
 
 	var devices []Device
 
@@ -158,6 +161,10 @@ func GetDevices(user *User) []Device {
 	DB.Where("user_id = ?", user.ID).Find(&devices)
 
 	for i := range devices {
+		if devices[i].Time <= time.Now().Add(20*time.Minute).Unix() {
+			devices[i].Status = offline
+		}
+
 		var trace []Location
 		DB.Order("time").Where("device_id = ?", devices[i].ID).Limit(10).Find(&trace)
 		devices[i].Trace = trace
@@ -207,16 +214,11 @@ func HandleMQTT(msg *MQTTMsg) {
 		return
 	}
 
-	if msg.Alert == 0 {
-		device.Status = normal
-	} else {
-		device.Status = alert
-	}
-
 	device.CurrentLongitude = msg.Longitude
 	device.CurrentLatitude = msg.Latitude
 	device.Count++
 	device.Value = msg.Value
+	device.Time = msg.Timestamp
 
 	DB.Save(&device)
 
@@ -225,6 +227,12 @@ func HandleMQTT(msg *MQTTMsg) {
 	location.Latitude = device.CurrentLatitude
 	location.Longitude = device.CurrentLongitude
 	location.Time = msg.Timestamp
+
+	if msg.Alert == 0 {
+		device.Status = normal
+	} else {
+		device.Status = alert
+	}
 
 	DB.Create(&location)
 }

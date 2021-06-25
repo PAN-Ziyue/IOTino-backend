@@ -5,12 +5,8 @@ import (
 	"IOTino/pkg/e"
 	"IOTino/pkg/settings"
 	"IOTino/utils"
-	"bytes"
-	"fmt"
 	"log"
 	"net/http"
-	"net/smtp"
-	"text/template"
 
 	"github.com/gin-gonic/gin"
 )
@@ -46,13 +42,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	if !user.Verified {
-		status.Set(http.StatusUnauthorized, e.UserNotVerified)
-		c.JSON(status.Code, gin.H{"msg": status.Msg})
-		return
-	}
-
-	token, err := utils.GenerateToken(user.ID, login.Email, user.Verified)
+	token, err := utils.GenerateToken(user.ID, login.Email)
 
 	if err != nil {
 		status.Set(http.StatusUnauthorized, e.CannotGenToken)
@@ -264,46 +254,4 @@ func LogoutUser(c *gin.Context) {
 // @Router /api/user [PUT]
 func UpdatePassword(c *gin.Context) {
 	// TODO
-}
-
-func SendVerifyEmail() {
-	// TODO
-	// Sender data.
-	from := ""
-	password := ""
-
-	// Receiver email address.
-	to := []string{
-		"sender@example.com",
-	}
-
-	// smtp server configuration.
-	smtpHost := "smtp.gmail.com"
-	smtpPort := "587"
-
-	// Authentication.
-	auth := smtp.PlainAuth("", from, password, smtpHost)
-
-	t, _ := template.ParseFiles("template.html")
-
-	var body bytes.Buffer
-
-	mimeHeaders := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
-	body.Write([]byte(fmt.Sprintf("Subject: This is a test subject \n%s\n\n", mimeHeaders)))
-
-	t.Execute(&body, struct {
-		Name    string
-		Message string
-	}{
-		Name:    "Puneet Singh",
-		Message: "This is a test message in a HTML template",
-	})
-
-	// Sending email.
-	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, to, body.Bytes())
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println("Email Sent!")
 }

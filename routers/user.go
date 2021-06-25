@@ -112,25 +112,6 @@ func CreateUser(c *gin.Context) {
 	})
 }
 
-// DeleteUser godoc
-// @Summary delete a user
-// @Tags User
-// @Accept  json
-// @Success 200 {string} string "ok"
-// @Failure 400 {string} string "error"
-// @Router /api/user [DELETE]
-func DeleteUser(c *gin.Context) {
-	var user models.User
-
-	if err := c.ShouldBindJSON(&user); err != nil {
-		status := e.New(http.StatusBadRequest, e.BadParameter)
-		c.JSON(status.Code, gin.H{"msg": status.Msg})
-		return
-	}
-
-	c.String(http.StatusOK, "ok")
-}
-
 // CurrentUser godoc
 // @Summary get a user's specification
 // @Tags User
@@ -242,16 +223,4 @@ func LogoutUser(c *gin.Context) {
 		"status": "ok",
 		"msg":    status.Msg,
 	})
-}
-
-// UpdatePassword godoc
-// @Summary update a user's password
-// @Tags User
-// @Accept  json
-// @Param password query string true "password"
-// @Success 200 {string} string "ok"
-// @Failure 400 {string} string "error"
-// @Router /api/user [PUT]
-func UpdatePassword(c *gin.Context) {
-	// TODO
 }

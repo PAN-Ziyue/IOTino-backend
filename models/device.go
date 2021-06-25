@@ -60,8 +60,9 @@ func CountDevice(user *User) (int64, int64, int64) {
 	var dataCount int64 = 0
 
 	DB.Model(&Device{}).Where("user_id = ?", user.ID).Count(&deviceCount)
+	println("[DEBUG]", time.Now().Add(-20*time.Minute).Unix())
 	DB.Model(&Device{}).Where("user_id = ? AND status <> ? AND time > ?",
-		user.ID, offline, time.Now().Add(-20*time.Minute).Unix()).Count(&onlineCount)
+		user.ID, offline, time.Now().Add(-20*time.Minute).Unix()*1000).Count(&onlineCount)
 
 	var devices []Device
 
@@ -161,7 +162,7 @@ func GetDevices(user *User) []Device {
 	DB.Where("user_id = ?", user.ID).Find(&devices)
 
 	for i := range devices {
-		if devices[i].Time <= time.Now().Add(20*time.Minute).Unix() {
+		if devices[i].Time <= time.Now().Add(-20*time.Minute).Unix()*1000 {
 			devices[i].Status = offline
 		}
 

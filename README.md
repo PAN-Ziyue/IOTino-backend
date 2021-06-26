@@ -9,6 +9,33 @@ The backend project for IOTino.
 - Go
 - MySQL
 
+## Config
+
+Edit `config/IOTino.ini`, an example:
+
+```
+[MQTT]
+MQTTAddr = localhost
+MQTTPort = 1883
+KeepAlive = 20
+
+
+[Server]
+ServerAddr = localhost
+RunMode = debug
+HTTPPort = 1882
+READ_TIMEOUT = 60
+WRITE_TIMEOUT = 60
+
+
+[Database]
+TYPE = mysql
+USER = root
+PASSWORD = 600019
+HOST = 127.0.0.1:3306
+TABLE = IOTino
+```
+
 ## Build
 
 ```bash
